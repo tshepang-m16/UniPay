@@ -18,7 +18,7 @@ def chatbot_api(request):
         user_input_lower = user_input.lower()
         
         if any(word in user_input_lower for word in ['hello', 'hi', 'hey']):
-            reply = "Hello! I'm your Remittance Assistant. How can I help you with money transfers, savings, or donations today?"
+            reply = "Hello! I'm your UniPay Assistant. How can I help you with money transfers, savings, or donations today?"
         elif any(word in user_input_lower for word in ['remittance', 'transfer', 'send money']):
             reply = "I can help with money transfers! Our platform supports secure remittances to multiple countries with competitive fees."
         elif any(word in user_input_lower for word in ['fee', 'cost', 'charge']):
