@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Join Remittence - Sign Up</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#ffeef8 0%,#fff5f9 50%,#ffe8f3 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .register-container{background:#fff;border-radius:25px;box-shadow:0 15px 50px rgba(255,105,180,.2);padding:40px;max-width:600px;width:100%}
+    .logo{text-align:center;margin-bottom:30px}
+    .logo h1{color:#ff69b4;font-size:32px;font-weight:700;margin-bottom:5px}
+    .logo p{color:#666;font-size:14px}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:20px}
+    .form-group{margin-bottom:16px}
+    .form-group.full-width{grid-column:1/-1}
+    .form-group label{display:block;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:600}
+    .form-group input,.form-group select{width:100%;border:2px solid #ffe8f3;border-radius:12px;padding:12px 14px;font-size:14px;background:#fff;transition:.3s}
+    .form-group input:focus,.form-group select:focus{outline:none;border-color:#ff69b4;box-shadow:0 0 0 3px rgba(255,105,180,.1)}
+    .required{color:#ff69b4}
+    .btn-primary{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;border:none;padding:14px 30px;border-radius:25px;cursor:pointer;font-weight:600;font-size:16px;box-shadow:0 5px 15px rgba(255,105,180,.3);transition:.3s;width:100%;margin-top:20px}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(255,105,180,.4)}
+    .login-link{text-align:center;margin-top:20px;color:#666;font-size:14px}
+    .login-link a{color:#ff69b4;text-decoration:none;font-weight:600}
+    .login-link a:hover{text-decoration:underline}
+    .messages{margin-bottom:20px}
+    .error{background:#ffebee;border:1px solid:#ef5350;color:#c62828;padding:12px;border-radius:8px;margin-bottom:10px;font-size:14px}
+    .success{background:#e8f5e8;border:1px solid:#4caf50;color:#2e7d32;padding:12px;border-radius:8px;margin-bottom:10px;font-size:14px}
+    .password-requirements{background:#f8f9fa;border:1px solid #dee2e6;border-radius:8px;padding:12px;margin-top:8px;font-size:12px;color:#666}
+    .password-requirements ul{margin-left:16px}
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <div class="logo">
+      <h1>Join Remittence</h1>
+      <p>Empowering Women Globally Through Smart Money Transfers</p>
+    </div>
+
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="{% if message.tags == 'error' %}error{% else %}{{ message.tags }}{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="first_name">First Name</label>
+          <input type="text" id="first_name" name="first_name" placeholder="Your first name" value="{{ request.POST.first_name }}">
+        </div>
+        
+        <div class="form-group">
+          <label for="last_name">Last Name</label>
+          <input type="text" id="last_name" name="last_name" placeholder="Your last name" value="{{ request.POST.last_name }}">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Username <span class="required">*</span></label>
+        <input type="text" id="username" name="username" placeholder="Choose a username" required value="{{ request.POST.username }}">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address <span class="required">*</span></label>
+        <input type="email" id="email" name="email" placeholder="your.email@example.com" required value="{{ request.POST.email }}">
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="password1">Password <span class="required">*</span></label>
+          <input type="password" id="password1" name="password1" placeholder="Create a password" required>
+          <div class="password-requirements">
+            <strong>Password must contain:</strong>
+            <ul>
+              <li>At least 8 characters</li>
+              <li>Mix of letters and numbers recommended</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="password2">Confirm Password <span class="required">*</span></label>
+          <input type="password" id="password2" name="password2" placeholder="Confirm your password" required>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="phone_number">Phone Number</label>
+          <input type="tel" id="phone_number" name="phone_number" placeholder="+1234567890" value="{{ request.POST.phone_number }}">
+        </div>
+        
+        <div class="form-group">
+          <label for="country">Country</label>
+          <select id="country" name="country">
+            <option value="">Select your country...</option>
+            {% for country in countries %}
+              <option value="{{ country }}" {% if request.POST.country == country %}selected{% endif %}>{{ country }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="city">City</label>
+          <input type="text" id="city" name="city" placeholder="Your city" value="{{ request.POST.city }}">
+        </div>
+        
+        <div class="form-group">
+          <label for="preferred_currency">Preferred Currency</label>
+          <select id="preferred_currency" name="preferred_currency">
+            {% for code, name in currencies %}
+              <option value="{{ code }}" {% if request.POST.preferred_currency == code or code == 'USD' %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary">Create My Account</button>
+    </form>
+
+    <div class="login-link">
+      Already have an account? <a href="{% url 'login' %}">Sign in here</a>
+    </div>
+    <div class="register-link">
+      Don't have an account? <a href="{% url 'register' %}">Sign up here</a>
+    </div>
+  </div>
+
+  <script>
+    // Password confirmation validation
+    document.getElementById('password2').addEventListener('input', function() {
+      const password1 = document.getElementById('password1').value;
+      const password2 = this.value;
+      
+      if (password2 && password1 !== password2) {
+        this.style.borderColor = '#ef5350';
+      } else {
+        this.style.borderColor = '#ffe8f3';
+      }
+    });
+  </script>
+</body>
+</html>

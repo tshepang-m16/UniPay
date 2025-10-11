@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - Remittence</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%);min-height:100vh}
+    .container{display:flex;min-height:100vh}
+    .sidebar{width:260px;background:linear-gradient(180deg,#343a40 0%,#495057 100%);box-shadow:4px 0 20px rgba(0,0,0,.1);padding:30px 20px;position:fixed;height:100vh;overflow-y:auto}
+    .logo{text-align:center;margin-bottom:40px}
+    .logo h1{color:#fff;font-size:26px;font-weight:700}
+    .logo p{color:#adb5bd;font-size:12px;margin-top:5px}
+    .nav-item{padding:15px 20px;margin:10px 0;border-radius:15px;cursor:pointer;transition:.3s;color:#adb5bd;font-weight:500;display:flex;align-items:center;gap:12px}
+    .nav-item:hover{background:linear-gradient(135deg,#007bff 0%,#0056b3 100%);color:#fff;transform:translateX(5px)}
+    .nav-item.active{background:linear-gradient(135deg,#007bff 0%,#0056b3 100%);color:#fff;}
+    .main-content{margin-left:260px;flex:1;padding:40px}
+    .header{background:#fff;padding:24px 32px;border-radius:20px;box-shadow:0 5px 25px rgba(0,0,0,.1);margin-bottom:28px;display:flex;justify-content:space-between;align-items:center}
+    .header-info h2{color:#333;font-size:26px;margin-bottom:6px}
+    .header-info p{color:#666;font-size:14px}
+    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-bottom:30px}
+    .metric-card{background:#fff;padding:20px;border-radius:18px;box-shadow:0 5px 20px rgba(0,0,0,.1)}
+    .metric-card h3{font-size:13px;color:#777;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+    .metric-card strong{font-size:24px;color:#007bff}
+    .card{background:#fff;padding:24px;border-radius:20px;box-shadow:0 5px 25px rgba(0,0,0,.1);margin-bottom:24px}
+    .card h3{color:#007bff;margin-bottom:16px;font-size:18px}
+    table{width:100%;border-collapse:collapse}
+    th,td{text-align:left;padding:12px 10px;font-size:13px}
+    th{background:#f8f9fa;color:#333;text-transform:uppercase;font-size:12px}
+    tr:nth-child(even){background:#f8f9fa}
+    .status{font-weight:600;font-size:11px;border-radius:12px;padding:4px 8px;display:inline-block}
+    .status.completed{background:#d4edda;color:#155724}
+    .status.pending{background:#fff3cd;color:#856404}
+    .status.failed{background:#f8d7da;color:#721c24}
+    .btn{border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-weight:600;font-size:12px;transition:.3s}
+    .btn-primary{background:#007bff;color:#fff}
+    .btn-success{background:#28a745;color:#fff}
+    .btn-danger{background:#dc3545;color:#fff}
+    .btn-warning{background:#ffc107;color:#212529}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 4px 8px rgba(0,0,0,.2)}
+    .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center;z-index:1000}
+    .modal{background:#fff;border-radius:20px;padding:30px;max-width:500px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #e9ecef}
+    .form-group{margin-bottom:16px}
+    .form-group label{display:block;font-size:12px;color:#666;text-transform:uppercase;margin-bottom:6px;font-weight:600}
+    .form-group select,.form-group input,.form-group textarea{width:100%;border:2px solid #e9ecef;border-radius:8px;padding:10px 12px;font-size:14px}
+    .earnings-chart{background:#fff;padding:24px;border-radius:20px;box-shadow:0 5px 25px rgba(0,0,0,.1);margin-bottom:24px;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><h1>Admin Panel</h1><p>Remittence Management</p></div>
+      <nav>
+        <div class="nav-item active"><span>📊</span><span>Dashboard</span></div>
+        <div class="nav-item"><span>👥</span><span>User Management</span></div>
+        <div class="nav-item"><span>💸</span><span>Transfers</span></div>
+        <div class="nav-item"><span>📢</span><span>Notifications</span></div>
+        <div class="nav-item"><span>💰</span><span>Earnings</span></div>
+        <div class="nav-item" onclick="window.location.href='{% url 'dashboard' %}'"><span>🔙</span><span>Back to App</span></div>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <section class="header">
+        <div class="header-info">
+          <h2>Administrator Dashboard</h2>
+          <p>Manage users, transfers, and platform operations</p>
+        </div>
+      </section>
+
+      <section class="metrics">
+        <div class="metric-card">
+          <h3>Total Users</h3>
+          <strong>{{ total_users }}</strong>
+        </div>
+        <div class="metric-card">
+          <h3>Active Transfers</h3>
+          <strong>{{ active_transfers }}</strong>
+        </div>
+        <div class="metric-card">
+          <h3>Total Earnings</h3>
+          <strong>${{ total_earnings|floatformat:2 }}</strong>
+        </div>
+        <div class="metric-card">
+          <h3>Success Rate</h3>
+          <strong>{{ success_rate|floatformat:1 }}%</strong>
+        </div>
+      </section>
+
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px">
+        <div>
+          <!-- Recent Transfers -->
+          <div class="card">
+            <h3>Recent Money Transfers</h3>
+            <table>
+              <thead>
+                <tr><th>From → To</th><th>Amount</th><th>Fee</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                {% for transfer in recent_transfers %}
+                  <tr>
+                    <td>{{ transfer.sender.username }} → {{ transfer.recipient.username }}</td>
+                    <td>{{ transfer.amount }} {{ transfer.currency }}</td>
+                    <td>${{ transfer.service_fee|floatformat:2 }}</td>
+                    <td><span class="status {{ transfer.status }}">{{ transfer.get_status_display }}</span></td>
+                    <td>{{ transfer.created_at|date:"M d, H:i" }}</td>
+                    <td>
+                      {% if transfer.status == 'pending' %}
+                        <button class="btn btn-success" onclick="updateTransferStatus('{{ transfer.id }}', 'completed')">Approve</button>
+                        <button class="btn btn-danger" onclick="updateTransferStatus('{{ transfer.id }}', 'failed')">Reject</button>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- User Management -->
+          <div class="card">
+            <h3>User Management</h3>
+            <div style="margin-bottom:16px;">
+              <button class="btn btn-primary" onclick="openNotificationModal()">Send Notification</button>
+            </div>
+            <table>
+              <thead>
+                <tr><th>User</th><th>Phone</th><th>Country</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                {% for user_profile in user_profiles %}
+                  <tr>
+                    <td>{{ user_profile.user.username }}</td>
+                    <td>{{ user_profile.phone_number|default:"-" }}</td>
+                    <td>{{ user_profile.country|default:"-" }}</td>
+                    <td>{{ user_profile.get_role_display }}</td>
+                    <td>
+                      <span class="status {% if user_profile.is_active %}completed{% else %}failed{% endif %}">
+                        {% if user_profile.is_active %}Active{% else %}Inactive{% endif %}
+                      </span>
+                    </td>
+                    <td>
+                      <button class="btn btn-warning" onclick="toggleUserStatus('{{ user_profile.user.id }}')">
+                        {% if user_profile.is_active %}Suspend{% else %}Activate{% endif %}
+                      </button>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <!-- Earnings Chart -->
+          <div class="earnings-chart">
+            <h3 style="color:#007bff;margin-bottom:20px;">Fee Earnings Overview</h3>
+            <canvas id="earningsChart" width="300" height="300"></canvas>
+            <p style="margin-top:15px;color:#666;font-size:14px;">Total 2% fees collected: <strong>${{ total_earnings|floatformat:2 }}</strong></p>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="card">
+            <h3>Quick Actions</h3>
+            <button class="btn btn-primary" style="width:100%;margin-bottom:10px;" onclick="openNotificationModal()">Send Global Notification</button>
+            <button class="btn btn-warning" style="width:100%;margin-bottom:10px;">Export Transfer Report</button>
+            <button class="btn btn-danger" style="width:100%;">System Maintenance Mode</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notification Modal -->
+      <div id="notificationModal" class="modal-overlay">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>Send Notification</h3>
+            <button onclick="closeNotificationModal()" style="background:none;border:none;font-size:20px;cursor:pointer">&times;</button>
+          </div>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="send_notification">
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" name="title" required>
+            </div>
+            <div class="form-group">
+              <label>Message</label>
+              <textarea name="message" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+              <label>Type</label>
+              <select name="notification_type">
+                <option value="general">General</option>
+                <option value="security">Security Alert</option>
+                <option value="maintenance">Maintenance</option>
+                <option value="promotion">Promotion</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" name="is_global" checked> Send to all users
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Notification</button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Earnings pie chart
+    const ctx = document.getElementById('earningsChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Transfer Fees', 'Available Earnings'],
+        datasets: [{
+          data: [{{ total_earnings|floatformat:0 }}, {{ potential_earnings|floatformat:0 }}],
+          backgroundColor: ['#007bff', '#e9ecef']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+
+    function openNotificationModal() {
+      document.getElementById('notificationModal').style.display = 'flex';
+    }
+
+    function closeNotificationModal() {
+      document.getElementById('notificationModal').style.display = 'none';
+    }
+
+    function updateTransferStatus(transferId, status) {
+      if(confirm(`Are you sure you want to ${status} this transfer?`)) {
+        fetch('{% url "admin_dashboard" %}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: `action=update_transfer&transfer_id=${transferId}&status=${status}`
+        }).then(() => location.reload());
+      }
+    }
+
+    function toggleUserStatus(userId) {
+      if(confirm('Are you sure you want to change this user\'s status?')) {
+        fetch('{% url "admin_dashboard" %}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: `action=toggle_user&user_id=${userId}`
+        }).then(() => location.reload());
+      }
+    }
+  </script>
+</body>
+</html>

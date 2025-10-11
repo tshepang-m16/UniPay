@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Remittence - Budget Planner</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#ffeef8 0%,#fff5f9 50%,#ffe8f3 100%);min-height:100vh}
+    .container{display:flex;min-height:100vh}
+    .sidebar{width:280px;background:linear-gradient(180deg,#ffffff 0%,#fff0f6 100%);box-shadow:4px 0 20px rgba(255,105,180,.1);padding:30px 20px;position:fixed;height:100vh;overflow-y:auto}
+    .logo{text-align:center;margin-bottom:40px}
+    .logo h1{color:#ff69b4;font-size:28px;font-weight:700}
+    .logo p{color:#333;font-size:12px;margin-top:5px}
+    .nav-item{padding:15px 20px;margin:10px 0;border-radius:15px;cursor:pointer;transition:.3s;color:#333;font-weight:500;display:flex;align-items:center;gap:12px}
+    .nav-item:hover{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;transform:translateX(5px);box-shadow:0 5px 15px rgba(255,105,180,.3)}
+    .nav-item.active{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;box-shadow:0 5px 15px rgba(255,105,180,.3)}
+    .main-content{margin-left:280px;flex:1;padding:40px}
+    .header{background:#fff;padding:25px 35px;border-radius:20px;box-shadow:0 5px 25px rgba(255,105,180,.1);margin-bottom:30px;display:flex;justify-content:space-between;align-items:center}
+    .header h2{color:#333;font-size:28px}
+    .summary{display:flex;gap:20px;flex-wrap:wrap}
+    .summary-card{background:#fff;padding:18px 24px;border-radius:16px;box-shadow:0 5px 25px rgba(255,105,180,.1);min-width:180px}
+    .summary-card h3{font-size:14px;color:#777;margin-bottom:4px}
+    .summary-card strong{font-size:20px;color:#ff4695}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+    .card{background:#fff;padding:24px;border-radius:20px;box-shadow:0 5px 25px rgba(255,105,180,.1)}
+    label{font-size:13px;color:#666;margin-bottom:6px;display:block}
+    .field{width:100%;border:2px solid #ffe8f3;border-radius:12px;padding:12px 14px;outline:none;font-size:14px;background:#fff;margin-bottom:12px}
+    .btn-primary{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;border:none;padding:12px 22px;border-radius:25px;cursor:pointer;font-weight:600;font-size:15px;box-shadow:0 5px 15px rgba(255,105,180,.3);transition:.3s}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{text-align:left;padding:12px 10px;font-size:13px}
+    th{background:#ffe0f1;color:#333}
+    tr:nth-child(even){background:#fff8fb}
+    .variance-positive{color:#27ae60;font-weight:600}
+    .variance-negative{color:#e74c3c;font-weight:600}
+    .month-picker{display:flex;align-items:center;gap:12px;margin-top:10px}
+    .month-picker input{border:2px solid #ffe8f3;border-radius:12px;padding:10px 12px;font-size:14px}
+    .flash{background:#ffe1ec;border:1px solid #ffb0ce;color:#b13063;padding:10px 12px;border-radius:12px;margin-bottom:16px;font-size:13px}
+    .message{background:#ffe1ec;border:1px solid #ffb0ce;color:#b13063;padding:10px 12px;border-radius:12px;margin-bottom:14px;font-size:13px}
+    .errorlist{list-style:none;color:#c0392b;font-size:12px;margin-top:-4px;margin-bottom:10px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><h1>Remittence</h1><p>Empowering Women Globally</p></div>
+      <nav>
+        <div class="nav-item" onclick="go('dashboard.html')"><span></span><span>Dashboard</span></div>
+        <div class="nav-item" onclick="go('profile.html')"><span></span><span>Profile</span></div>
+        <div class="nav-item" onclick="go('education.html')"><span></span><span>Financial Education</span></div>
+        <div class="nav-item" onclick="go('promotions.html')"><span></span><span>Promotions</span></div>
+        <div class="nav-item" onclick="go('donate.html')"><span></span><span>Donations</span></div>
+        <div class="nav-item active"><span></span><span>Budget</span></div>
+        <div class="nav-item" onclick="go('logout.html')"><span></span><span>Logout</span></div>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      {% if messages %}
+        {% for message in messages %}<div class="flash">{{ message }}</div>{% endfor %}
+      {% endif %}
+      <header class="header">
+        <div>
+          <h2>Budget Planner </h2>
+          <div class="month-picker">
+            <form method="get">
+              <label for="month" style="font-size:13px;color:#666;">Select month</label>
+              <input id="month" type="month" name="month" value="{{ month|date:'Y-m' }}" onchange="this.form.submit()"/>
+            </form>
+          </div>
+        </div>
+        <div class="summary">
+          <div class="summary-card"><h3>Planned</h3><strong>{{ planned_total|floatformat:2 }}</strong></div>
+          <div class="summary-card"><h3>Actual</h3><strong>{{ actual_total|floatformat:2 }}</strong></div>
+          <div class="summary-card"><h3>Variance</h3><strong{% if variance_total < 0 %} style="color:#e74c3c"{% endif %}>{{ variance_total|floatformat:2 }}</strong></div>
+        </div>
+      </header>
+
+      <section class="grid">
+        <div class="card">
+          <h3 style="color:#ff69b4;margin-bottom:12px;">Add / Update Category</h3>
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="budget"/>
+            {% if form.non_field_errors %}<div class="message">{% for error in form.non_field_errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>{% endif %}
+            <label for="{{ form.category.id_for_label }}">Category</label>
+            {{ form.category }}
+            {% if form.category.errors %}<ul class="errorlist">{% for error in form.category.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            <label for="{{ form.planned_amount.id_for_label }}">Planned Amount</label>
+            {{ form.planned_amount }}
+            {% if form.planned_amount.errors %}<ul class="errorlist">{% for error in form.planned_amount.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            <label for="{{ form.actual_amount.id_for_label }}">Actual Spend</label>
+            {{ form.actual_amount }}
+            {% if form.actual_amount.errors %}<ul class="errorlist">{% for error in form.actual_amount.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            <label for="{{ form.month.id_for_label }}">Month</label>
+            {{ form.month }}
+            {% if form.month.errors %}<ul class="errorlist">{% for error in form.month.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            <button class="btn-primary" type="submit">Save Entry</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3 style="color:#333;margin-bottom:12px;">Current Plan</h3>
+          {% if entries %}
+            <table>
+              <thead><tr><th>Category</th><th>Planned</th><th>Actual</th><th>Variance</th></tr></thead>
+              <tbody>
+                {% for entry in entries %}
+                  {% with variance=entry.variance %}
+                  <tr>
+                    <td>{{ entry.category }}</td>
+                    <td>{{ entry.planned_amount|floatformat:2 }}</td>
+                    <td>{{ entry.actual_amount|floatformat:2 }}</td>
+                    <td class="{% if variance < 0 %}variance-negative{% else %}variance-positive{% endif %}">{{ variance|floatformat:2 }}</td>
+                  </tr>
+                  {% endwith %}
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p style="color:#666;font-size:14px;">No budget entries for this month yet. Use the form to get started.</p>
+          {% endif %}
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const routes = {
+      'dashboard.html': "{% url 'dashboard' %}",
+      'profile.html': "{% url 'profile' %}",
+      'promotions.html': "{% url 'promotions' %}",
+      'donate.html': "{% url 'donate' %}",
+      'budget.html': "{% url 'budget' %}",
+      'login.html': "{% url 'login' %}",
+      'logout.html': "{% url 'logout' %}",
+      'ForLearning.html': "{% url 'learning' %}",
+      'education.html': "{% url 'learning' %}",
+      'users.html': "{% url 'users' %}",
+    };
+    const go = (href) => {
+      const target = routes[href] || href;
+      window.location.href = target;
+    };
+  </script>
+  {% include 'partials/chatbot.html' %}
+</body>
+</html>

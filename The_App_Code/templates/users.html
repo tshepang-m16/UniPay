@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Remittence  User Segments</title>
+  <style>
+    body { font-family: "Segoe UI", Arial, sans-serif; background: #fdf2f8; color: #3a3a3a; margin: 0; padding: 2rem; }
+    .user-card { max-width: 620px; margin: 0 auto; background: #ffffff; border-radius: 16px; padding: 2rem; box-shadow: 0 12px 30px rgba(214, 51, 108, 0.12); }
+    h1 { color: #d6336c; margin-bottom: 0.5rem; }
+    h2 { color: #6c2b50; font-size: 1rem; margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    ul { list-style: none; padding: 0; margin: 1rem 0 0; }
+    li { background: linear-gradient(135deg, #ffe3ed 0%, #ffc9de 100%); padding: 0.75rem 1rem; border-radius: 12px; margin-bottom: 0.75rem; font-weight: 600; letter-spacing: 0.4px; display:flex; justify-content:space-between; }
+    .total { font-size: 2rem; font-weight: 700; color: #d6336c; }
+    a { color: #d6336c; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main class="user-card">
+    <h1>User Segments</h1>
+    <p>The platform currently recognises these primary user groups.</p>
+    <div>
+      <span>Total registered users:</span>
+      <div class="total">{{ total_users }}</div>
+    </div>
+    <h2>Membership Levels</h2>
+    <ul>
+      {% for label, value in membership_breakdown.items %}
+        <li><span>{{ label }}</span><span>{{ value }}</span></li>
+      {% empty %}
+        <li>No categories defined yet.</li>
+      {% endfor %}
+    </ul>
+    <p style="margin-top: 1.5rem;">
+      <a href="{{ request.GET.next|default:'/' }}">Return to previous page</a>
+    </p>
+  </main>
+</body>
+</html>

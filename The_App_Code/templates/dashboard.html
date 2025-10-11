@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UniPay Dashboard</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#ffeef8 0%,#fff5f9 50%,#ffe8f3 100%);min-height:100vh}
+    .container{display:flex;min-height:100vh}
+    .sidebar{width:260px;background:linear-gradient(180deg,#ffffff 0%,#fff0f6 100%);box-shadow:4px 0 20px rgba(255,105,180,.1);padding:30px 20px;position:fixed;height:100vh;overflow-y:auto}
+    .logo{text-align:center;margin-bottom:40px}
+    .logo h1{color:#ff69b4;font-size:26px;font-weight:700}
+    .logo p{color:#333;font-size:12px;margin-top:5px}
+    .nav-item{padding:15px 20px;margin:10px 0;border-radius:15px;cursor:pointer;transition:.3s;color:#333;font-weight:500;display:flex;align-items:center;gap:12px}
+    .nav-item:hover{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;transform:translateX(5px);box-shadow:0 5px 15px rgba(255,105,180,.3)}
+    .nav-item.active{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;box-shadow:0 5px 15px rgba(255,105,180,.3)}
+    .main-content{margin-left:260px;flex:1;padding:40px}
+    .header{background:#fff;padding:24px 32px;border-radius:20px;box-shadow:0 5px 25px rgba(255,105,180,.1);margin-bottom:28px;display:flex;justify-content:space-between;align-items:center;gap:24px}
+    .header-info h2{color:#333;font-size:26px;margin-bottom:6px}
+    .header-info p{color:#666;font-size:14px}
+    
+    /* Send Money Button */
+    .send-money-btn{background:linear-gradient(135deg,#28a745 0%,#20c997 100%);color:#fff;border:none;padding:12px 22px;border-radius:25px;cursor:pointer;font-weight:600;font-size:14px;box-shadow:0 5px 15px rgba(40,167,69,.3);transition:.3s}
+    .send-money-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(40,167,69,.4)}
+    
+    /* Modal Styles */
+    .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center;z-index:1000}
+    .modal{background:#fff;border-radius:20px;padding:30px;max-width:450px;width:90%;box-shadow:0 10px 40px rgba(255,105,180,.2);position:relative;animation:modalSlideIn .3s ease-out}
+    @keyframes modalSlideIn{from{transform:translateY(-50px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #ffe8f3}
+    .modal-header h3{color:#ff69b4;font-size:20px}
+    .close-btn{background:none;border:none;font-size:24px;color:#666;cursor:pointer;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:.3s}
+    .close-btn:hover{background:#ffe8f3;color:#ff69b4}
+    .modal-body{margin-bottom:20px}
+    .form-group{margin-bottom:16px}
+    .form-group label{display:block;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:600}
+    .form-group select,.form-group input{width:100%;border:2px solid #ffe8f3;border-radius:12px;padding:12px 14px;font-size:14px;background:#fff;transition:.3s}
+    .form-group select:focus,.form-group input:focus{outline:none;border-color:#ff69b4;box-shadow:0 0 0 3px rgba(255,105,180,.1)}
+    .fee-info{background:#f8f9fa;border:1px solid #dee2e6;border-radius:12px;padding:12px;margin:16px 0;font-size:13px;color:#666}
+    .fee-amount{color:#ff69b4;font-weight:600}
+    .modal-footer{display:flex;gap:12px;justify-content:flex-end}
+    .btn-secondary{background:#6c757d;color:#fff;border:none;padding:10px 20px;border-radius:25px;cursor:pointer;font-weight:600;font-size:14px;transition:.3s}
+    .btn-secondary:hover{background:#5a6268}
+    
+    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px}
+    .metric-card{background:#fff;padding:20px;border-radius:18px;box-shadow:0 5px 20px rgba(255,105,180,.12)}
+    .metric-card h3{font-size:13px;color:#777;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em}
+    .metric-card strong{font-size:24px;color:#ff3f8f}
+    .metric-card span{display:block;font-size:12px;color:#888;margin-top:4px}
+    .content-grid{display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-top:28px}
+    @media(max-width:1100px){.content-grid{grid-template-columns:1fr}}
+    .card{background:#fff;padding:24px;border-radius:20px;box-shadow:0 5px 25px rgba(255,105,180,.1);margin-bottom:24px}
+    .card h3{color:#ff69b4;margin-bottom:16px;font-size:18px}
+    table{width:100%;border-collapse:collapse}
+    th,td{text-align:left;padding:12px 10px;font-size:13px}
+    th{background:#ffe0f1;color:#333;text-transform:uppercase;font-size:12px;letter-spacing:.05em}
+    tr:nth-child(even){background:#fff8fb}
+    .status{font-weight:600;font-size:12px;border-radius:999px;padding:6px 10px;display:inline-block}
+    .status.on-track{background:#e8fff1;color:#2e7d32}
+    .status.behind{background:#ffecec;color:#c0392b}
+    .status.ahead{background:#ecf5ff;color:#1565c0}
+    .pill{display:inline-block;background:#ffe8f3;color:#333;padding:8px 12px;border-radius:999px;font-size:12px;margin:4px 6px 0 0}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+    label{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:block}
+    .field{width:100%;border:2px solid #ffe8f3;border-radius:12px;padding:10px 12px;font-size:14px;background:#fff}
+    .btn-primary{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;border:none;padding:12px 22px;border-radius:25px;cursor:pointer;font-weight:600;font-size:14px;box-shadow:0 5px 15px rgba(255,105,180,.3);transition:.3s;margin-top:10px}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(255,105,180,.4)}
+    .errorlist{list-style:none;color:#c0392b;font-size:12px;margin-top:-4px;margin-bottom:8px}
+    .flash{background:#ffe1ec;border:1px solid:#ffb0ce;color:#b13063;padding:10px 12px;border-radius:12px;margin-bottom:16px;font-size:13px}
+    .message{background:#ffe1ec;border:1px solid:#ffb0ce;color:#b13063;padding:10px 12px;border-radius:12px;margin-bottom:16px;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><h1>UniPay</h1><p>Global Money Transfers</p></div>
+      <nav>
+        <div class="nav-item active" onclick="goTo('dashboard')"><span>📊</span><span>Dashboard</span></div>
+        <div class="nav-item" onclick="goTo('profile')"><span>👤</span><span>Profile</span></div>
+        <div class="nav-item" onclick="goTo('learning')"><span>📚</span><span>Financial Education</span></div>
+        <div class="nav-item" onclick="goTo('promotions')"><span>🎁</span><span>Promotions</span></div>
+        <div class="nav-item" onclick="goTo('donate')"><span>💝</span><span>Donations</span></div>
+        <div class="nav-item" onclick="goTo('budget')"><span>💰</span><span>Budget</span></div>
+        {% if user.profile.is_admin %}
+          <div class="nav-item" onclick="goTo('admin_dashboard')"><span>🔧</span><span>Admin Panel</span></div>
+        {% endif %}
+        <div class="nav-item" onclick="goTo('logout')"><span>🚪</span><span>Logout</span></div>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      {% if messages %}
+        {% for message in messages %}<div class="flash">{{ message }}</div>{% endfor %}
+      {% endif %}
+      <section class="header">
+        <div class="header-info">
+          <h2>Welcome back{% if request.user.is_authenticated %} {{ request.user.first_name|default:request.user.username }}{% endif %}</h2>
+          <p>Track transfers, donations, and financial milestones in one place.</p>
+        </div>
+        <div>
+          <button class="send-money-btn" onclick="openSendMoneyModal()">💸 Send Money</button>
+          <span class="pill">Updated {{ now|date:"M d, Y" }}</span>
+        </div>
+      </section>
+
+      <!-- Send Money Modal -->
+      <div id="sendMoneyModal" class="modal-overlay">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>Send Money</h3>
+            <button class="close-btn" onclick="closeSendMoneyModal()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <form id="sendMoneyForm" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="form_type" value="send_money"/>
+              
+              <div class="form-group">
+                <label for="recipient">Send to (Phone Number)</label>
+                <select id="recipient" name="recipient_phone" required>
+                  <option value="">Select recipient...</option>
+                  {% for user_profile in available_recipients %}
+                    <option value="{{ user_profile.phone_number }}">
+                      {{ user_profile.phone_number }} - {{ user_profile.display_name|default:user_profile.user.username }} ({{ user_profile.country|default:"Unknown" }})
+                    </option>
+                  {% empty %}
+                    <option disabled>No recipients available</option>
+                  {% endfor %}
+                </select>
+                
+                <!-- Debug info to see what's happening -->
+                <small style="color: #666; font-size: 11px; margin-top: 5px; display: block;">
+                  {% if available_recipients %}
+                    {{ available_recipients|length }} recipient(s) available
+                  {% else %}
+                    No recipients found. Make sure users have phone numbers.
+                  {% endif %}
+                </small>
+              </div>
+              
+              <div class="form-group">
+                <label for="amount">Amount</label>
+                <input type="number" id="amount" name="amount" step="0.01" min="0.01" placeholder="0.00" required oninput="calculateFee()"/>
+              </div>
+              
+              <div class="form-group">
+                <label for="currency">Currency</label>
+                <select id="currency" name="currency" required>
+                  <option value="USD">USD - US Dollar</option>
+                  <option value="EUR">EUR - Euro</option>
+                  <option value="GBP">GBP - British Pound</option>
+                  <option value="KES">KES - Kenyan Shilling</option>
+                  <option value="GHS">GHS - Ghanaian Cedi</option>
+                  <option value="NGN">NGN - Nigerian Naira</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="description">Description (Optional)</label>
+                <input type="text" id="description" name="description" placeholder="What's this for?" maxlength="255"/>
+              </div>
+              
+              <div class="fee-info">
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                  <span>Transfer Amount:</span>
+                  <span id="transferAmount">$0.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                  <span>Service Fee (2%):</span>
+                  <span id="serviceFee" class="fee-amount">$0.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-weight:600;border-top:1px solid #dee2e6;padding-top:8px;">
+                  <span>Total Deduction:</span>
+                  <span id="totalAmount">$0.00</span>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeSendMoneyModal()">Cancel</button>
+            <button type="submit" form="sendMoneyForm" class="btn-primary">Send Money</button>
+          </div>
+        </div>
+      </div>
+    
+      <section class="metrics">
+        <div class="metric-card"><h3>Total Incoming</h3><strong>{{ incoming_total|floatformat:2 }}</strong><span>Across all transfers</span></div>
+        <div class="metric-card"><h3>Total Outgoing</h3><strong>{{ outgoing_total|floatformat:2 }}</strong><span>Funds sent home</span></div>
+        <div class="metric-card"><h3>Net Flow</h3><strong{% if net_flow < 0 %} style="color:#c0392b"{% endif %}>{{ net_flow|floatformat:2 }}</strong><span>Income minus transfers</span></div>
+        <div class="metric-card"><h3>Packs Donated</h3><strong>{{ donation_total_packs }}</strong><span>Community impact</span></div>
+      </section>
+
+      <section class="content-grid">
+        <div>
+          <div class="card">
+            <h3>Recent Transactions</h3>
+            {% if recent_transactions %}
+              <table>
+                <thead><tr><th>Description</th><th>Amount</th><th>When</th></tr></thead>
+                <tbody>
+                  {% for tx in recent_transactions %}
+                    <tr>
+                      <td>{{ tx.description }}</td>
+                      <td>{% if tx.kind == tx.OUTGOING or tx.kind == tx.TRANSFER_OUT %}-{% else %}+{% endif %}{{ tx.amount|floatformat:2 }} {{ tx.currency }}</td>
+                      <td>{{ tx.occurred_at|date:"M d, H:i" }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p style="color:#666;font-size:14px;">No transactions recorded yet. Use the quick form to add one.</p>
+            {% endif %}
+            <form method="post" style="margin-top:16px;">
+              {% csrf_token %}
+              <input type="hidden" name="form_type" value="transaction"/>
+              <div class="form-grid">
+                <div>
+                  <label for="{{ transaction_form.description.id_for_label }}">Description</label>
+                  {{ transaction_form.description }}
+                  {% if transaction_form.description.errors %}<ul class="errorlist">{% for error in transaction_form.description.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div>
+                  <label for="{{ transaction_form.amount.id_for_label }}">Amount</label>
+                  {{ transaction_form.amount }}
+                  {% if transaction_form.amount.errors %}<ul class="errorlist">{% for error in transaction_form.amount.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div>
+                  <label for="{{ transaction_form.currency.id_for_label }}">Currency</label>
+                  {{ transaction_form.currency }}
+                  {% if transaction_form.currency.errors %}<ul class="errorlist">{% for error in transaction_form.currency.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div>
+                  <label for="{{ transaction_form.kind.id_for_label }}">Direction</label>
+                  {{ transaction_form.kind }}
+                  {% if transaction_form.kind.errors %}<ul class="errorlist">{% for error in transaction_form.kind.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div>
+                  <label for="{{ transaction_form.category.id_for_label }}">Category</label>
+                  {{ transaction_form.category }}
+                  {% if transaction_form.category.errors %}<ul class="errorlist">{% for error in transaction_form.category.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div>
+                  <label for="{{ transaction_form.occurred_at.id_for_label }}">Date &amp; Time</label>
+                  {{ transaction_form.occurred_at }}
+                  {% if transaction_form.occurred_at.errors %}<ul class="errorlist">{% for error in transaction_form.occurred_at.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+              </div>
+              <button class="btn-primary" type="submit">Add Transaction</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Financial Goals</h3>
+            {% if goals %}
+              <table>
+                <thead><tr><th>Goal</th><th>Progress</th><th>Due</th><th>Status</th></tr></thead>
+                <tbody>
+                  {% for goal in goals %}
+                    <tr>
+                      <td>{{ goal.name }}</td>
+                      <td>{{ goal.current_amount|floatformat:2 }} / {{ goal.target_amount|floatformat:2 }} ({{ goal.progress_percent|floatformat:0 }}%)</td>
+                      <td>{% if goal.due_date %}{{ goal.due_date|date:"M d, Y" }}{% else %}-{% endif %}</td>
+                      <td><span class="status {{ goal.status|slugify }}">{{ goal.get_status_display }}</span></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p style="color:#666;font-size:14px;">Set your first goal to keep savings on track.</p>
+            {% endif %}
+            <form method="post" style="margin-top:16px;">
+              {% csrf_token %}
+              <input type="hidden" name="form_type" value="goal"/>
+              <div class="form-grid">
+                <div>
+                  <label for="{{ goal_form.name.id_for_label }}">Goal Name</label>
+                  {{ goal_form.name }}
+                  {% if goal_form.name.errors %}<ul class="errorlist">{% for error in goal_form.name.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div>
+                  <label for="{{ goal_form.target_amount.id_for_label }}">Target</label>
+                  {{ goal_form.target_amount }}
+                  {% if goal_form.target_amount.errors %}<ul class="errorlist">{% for error in goal_form.target_amount.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div>
+                  <label for="{{ goal_form.current_amount.id_for_label }}">Saved</label>
+                  {{ goal_form.current_amount }}
+                  {% if goal_form.current_amount.errors %}<ul class="errorlist">{% for error in goal_form.current_amount.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div>
+                  <label for="{{ goal_form.due_date.id_for_label }}">Due Date</label>
+                  {{ goal_form.due_date }}
+                  {% if goal_form.due_date.errors %}<ul class="errorlist">{% for error in goal_form.due_date.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+                <div>
+                  <label for="{{ goal_form.status.id_for_label }}">Status</label>
+                  {{ goal_form.status }}
+                  {% if goal_form.status.errors %}<ul class="errorlist">{% for error in goal_form.status.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+              </div>
+              <button class="btn-primary" type="submit">Save Goal</button>
+            </form>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <h3>Quick Stats</h3>
+            <p style="color:#555;font-size:14px;margin-bottom:8px;">Keep tabs on the health of your finances.</p>
+            <div class="pill">Transactions logged: {{ recent_transactions|length }}</div>
+            <div class="pill">Goals set: {{ goals|length }}</div>
+            <div class="pill">Pads donated: {{ donation_total_packs }}</div>
+          </div>
+
+          <div class="card">
+            <h3>Learning Spotlight</h3>
+            <p style="color:#666;font-size:14px;">Head over to the Financial Education hub for fresh tips on budgeting, business and safety.</p>
+            <button class="btn-primary" type="button" onclick="goTo('learning')">Explore Lessons</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // URL mapping for navigation
+    const urlMap = {
+      dashboard: "{% url 'dashboard' %}",
+      profile: "{% url 'profile' %}",
+      learning: "{% url 'learning' %}",
+      promotions: "{% url 'promotions' %}",
+      donate: "{% url 'donate' %}", 
+      budget: "{% url 'budget' %}",
+      {% if user.profile.is_admin %}
+      admin_dashboard: "{% url 'admin_dashboard' %}",
+      {% endif %}
+      logout: "{% url 'logout' %}",
+    };
+
+    function goTo(page) {
+      const url = urlMap[page];
+      if (url && url !== '#') {
+        window.location.href = url;
+      } else {
+        console.warn(`URL for "${page}" not found or not configured`);
+        // Fallback to dashboard if URL not found
+        if (page !== 'dashboard') {
+          window.location.href = urlMap.dashboard;
+        }
+      }
+    }
+
+    function openSendMoneyModal() {
+      document.getElementById('sendMoneyModal').style.display = 'flex';
+    }
+
+    function closeSendMoneyModal() {
+      document.getElementById('sendMoneyModal').style.display = 'none';
+      document.getElementById('sendMoneyForm').reset();
+      calculateFee(); // Reset fee calculation
+    }
+
+    function calculateFee() {
+      const amountInput = document.getElementById('amount');
+      const transferAmountSpan = document.getElementById('transferAmount');
+      const serviceFeeSpan = document.getElementById('serviceFee');
+      const totalAmountSpan = document.getElementById('totalAmount');
+      
+      const amount = parseFloat(amountInput.value) || 0;
+      const fee = amount * 0.02; // 2% fee
+      const total = amount + fee;
+      
+      // Get currency symbol (simplified)
+      const currency = document.getElementById('currency').value;
+      const symbols = {
+        'USD': '$', 'EUR': '€', 'GBP': '£', 
+        'KES': 'KSh', 'GHS': '₵', 'NGN': '₦'
+      };
+      const symbol = symbols[currency] || '$';
+      
+      transferAmountSpan.textContent = `${symbol}${amount.toFixed(2)}`;
+      serviceFeeSpan.textContent = `${symbol}${fee.toFixed(2)}`;
+      totalAmountSpan.textContent = `${symbol}${total.toFixed(2)}`;
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('sendMoneyModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeSendMoneyModal();
+      }
+    });
+
+    // Initialize fee calculation
+    document.addEventListener('DOMContentLoaded', function() {
+      calculateFee();
+      
+      // Add event listeners
+      document.getElementById('amount').addEventListener('input', calculateFee);
+      document.getElementById('currency').addEventListener('change', calculateFee);
+    });
+  </script>
+    {% include 'partials/chatbot.html' %}
+</body>
+</html>

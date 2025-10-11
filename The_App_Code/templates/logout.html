@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Remittence - Logout</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#ffeef8 0%,#fff5f9 50%,#ffe8f3 100%);min-height:100vh}
+    .container{display:flex;min-height:100vh}
+    .sidebar{width:280px;background:linear-gradient(180deg,#ffffff 0%,#fff0f6 100%);box-shadow:4px 0 20px rgba(255,105,180,.1);padding:30px 20px;position:fixed;height:100vh;overflow-y:auto}
+    .logo{text-align:center;margin-bottom:40px}
+    .logo h1{color:#ff69b4;font-size:28px;font-weight:700}
+    .logo p{color:#333;font-size:12px;margin-top:5px}
+    .nav-item{padding:15px 20px;margin:10px 0;border-radius:15px;cursor:pointer;transition:.3s;color:#333;font-weight:500;display:flex;align-items:center;gap:12px}
+    .nav-item:hover{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;transform:translateX(5px);box-shadow:0 5px 15px rgba(255,105,180,.3)}
+    .nav-item.active{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;box-shadow:0 5px 15px rgba(255,105,180,.3)}
+    .main-content{margin-left:280px;flex:1;padding:40px;display:flex;align-items:center;justify-content:center}
+    .card{background:#fff;padding:36px;border-radius:20px;box-shadow:0 5px 25px rgba(255,105,180,.1);width:100%;max-width:420px;text-align:center}
+    h2{color:#333;margin-bottom:16px}
+    p{color:#666;margin-bottom:22px;font-size:14px}
+    .btn-primary{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;border:none;padding:14px 24px;border-radius:25px;cursor:pointer;font-weight:600;font-size:15px;box-shadow:0 5px 15px rgba(255,105,180,.3);transition:.3s;width:100%;margin-bottom:12px}
+    .btn-alt{background:#fff;border:2px solid #ffe0f1;color:#ff1493;padding:14px 24px;border-radius:25px;cursor:pointer;font-weight:600;font-size:15px;width:100%}
+  </style>
+</head>
+<body>
+
+
+    <main class="main-content">
+      <form method="post" class="card">
+        {% csrf_token %}
+        <h2>Ready to sign out?</h2>
+        <p>Signing out keeps your account secure. You can always log back in when you're ready to keep building wealth.</p>
+        <button type="submit" class="btn-primary">Log Out</button>
+        <button type="button" class="btn-alt" onclick="go('dashboard.html')">Cancel</button>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    const routes = {
+      'dashboard.html': "{% url 'dashboard' %}",
+      'profile.html': "{% url 'profile' %}",
+      'promotions.html': "{% url 'promotions' %}",
+      'donate.html': "{% url 'donate' %}",
+      'budget.html': "{% url 'budget' %}",
+      'login.html': "{% url 'login' %}",
+      'logout.html': "{% url 'logout' %}",
+      'ForLearning.html': "{% url 'learning' %}",
+      'education.html': "{% url 'learning' %}",
+      'users.html': "{% url 'users' %}",
+    };
+    const go = (href) => {
+      const target = routes[href] || href;
+      window.location.href = target;
+    };
+  </script>
+</body>
+</html>

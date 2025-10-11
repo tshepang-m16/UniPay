@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Remittence</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#ffeef8 0%,#fff5f9 50%,#ffe8f3 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .login-container{background:#fff;border-radius:25px;box-shadow:0 15px 50px rgba(255,105,180,.2);padding:40px;max-width:450px;width:100%}
+    .logo{text-align:center;margin-bottom:30px}
+    .logo h1{color:#ff69b4;font-size:32px;font-weight:700;margin-bottom:5px}
+    .logo p{color:#666;font-size:14px}
+    .form-group{margin-bottom:20px}
+    .form-group label{display:block;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:600}
+    .form-group input{width:100%;border:2px solid #ffe8f3;border-radius:12px;padding:14px 16px;font-size:16px;background:#fff;transition:.3s}
+    .form-group input:focus{outline:none;border-color:#ff69b4;box-shadow:0 0 0 3px rgba(255,105,180,.1)}
+    .btn-primary{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;border:none;padding:14px 30px;border-radius:25px;cursor:pointer;font-weight:600;font-size:16px;box-shadow:0 5px 15px rgba(255,105,180,.3);transition:.3s;width:100%;margin-bottom:20px}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(255,105,180,.4)}
+    .btn-secondary{background:#fff;color:#ff69b4;border:2px solid #ff69b4;padding:14px 30px;border-radius:25px;cursor:pointer;font-weight:600;font-size:16px;transition:.3s;width:100%;text-decoration:none;display:inline-block;text-align:center;margin-bottom:15px}
+    .btn-secondary:hover{background:#ff69b4;color:#fff;transform:translateY(-2px);box-shadow:0 8px 25px rgba(255,105,180,.4)}
+    .divider{text-align:center;margin:20px 0;color:#999;font-size:14px;position:relative}
+    .divider::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:#e0e0e0;z-index:1}
+    .divider span{background:#fff;padding:0 15px;position:relative;z-index:2}
+    .forgot-link{text-align:center;margin-top:15px}
+    .forgot-link a{color:#ff69b4;text-decoration:none;font-size:14px;font-weight:500}
+    .forgot-link a:hover{text-decoration:underline}
+    .messages{margin-bottom:20px}
+    .error{background:#ffebee;border:1px solid #ef5350;color:#c62828;padding:12px;border-radius:8px;margin-bottom:10px;font-size:14px}
+    .success{background:#e8f5e8;border:1px solid #4caf50;color:#2e7d32;padding:12px;border-radius:8px;margin-bottom:10px;font-size:14px}
+    .info{background:#e3f2fd;border:1px solid #2196f3;color:#1976d2;padding:12px;border-radius:8px;margin-bottom:10px;font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">
+      <h1>Welcome Back</h1>
+      <p>Sign in to your Remittence account</p>
+    </div>
+
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="{% if message.tags == 'error' %}error{% else %}{{ message.tags }}{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="username">Username or Email</label>
+        <input type="text" id="username" name="username" placeholder="Enter your username or email" required value="{{ request.POST.username|default:'' }}">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      </div>
+
+      <button type="submit" class="btn-primary">Sign In</button>
+    </form>
+
+    <div class="divider">
+      <span>New to Remittence?</span>
+    </div>
+
+    <a href="{% url 'register' %}" class="btn-secondary">
+      🌟 Create New Account
+    </a>
+
+    <div class="forgot-link">
+      <a href="{% url 'password_reset_request' %}">Forgot your password?</a>
+    </div>
+  </div>
+
+  <script>
+    // Auto-focus on username field
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('username').focus();
+    });
+
+    // Add some interaction feedback
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const submitBtn = document.querySelector('.btn-primary');
+      submitBtn.textContent = 'Signing In...';
+      submitBtn.disabled = true;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Remittence  Profile</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#ffeef8 0%,#fff5f9 50%,#ffe8f3 100%);min-height:100vh}
+    .container{display:flex;min-height:100vh}
+    .sidebar{width:260px;background:linear-gradient(180deg,#ffffff 0%,#fff0f6 100%);box-shadow:4px 0 20px rgba(255,105,180,.1);padding:30px 20px;position:fixed;height:100vh;overflow-y:auto}
+    .logo{text-align:center;margin-bottom:40px}
+    .logo h1{color:#ff69b4;font-size:26px;font-weight:700}
+    .logo p{color:#333;font-size:12px;margin-top:5px}
+    .nav-item{padding:15px 20px;margin:10px 0;border-radius:15px;cursor:pointer;transition:.3s;color:#333;font-weight:500;display:flex;align-items:center;gap:12px}
+    .nav-item:hover{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;transform:translateX(5px);box-shadow:0 5px 15px rgba(255,105,180,.3)}
+    .nav-item.active{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;box-shadow:0 5px 15px rgba(255,105,180,.3)}
+    .main-content{margin-left:260px;flex:1;padding:40px}
+    .header{background:#fff;padding:24px 32px;border-radius:20px;box-shadow:0 5px 25px rgba(255,105,180,.1);margin-bottom:28px;display:flex;justify-content:space-between;align-items:center}
+    .header h2{color:#333;font-size:26px}
+    .badge{display:inline-block;background:#ffe8f3;color:#ff3f8f;padding:8px 16px;border-radius:999px;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+    .content-grid{display:grid;grid-template-columns:1.2fr 0.8fr;gap:24px}
+    @media(max-width:1100px){.content-grid{grid-template-columns:1fr}}
+    .card{background:#fff;padding:24px;border-radius:20px;box-shadow:0 5px 25px rgba(255,105,180,.1);margin-bottom:24px}
+    .card h3{color:#ff69b4;margin-bottom:16px;font-size:18px}
+    .profile-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px}
+    .profile-item{background:#fff8fb;border:1px solid #ffe1ec;border-radius:16px;padding:16px}
+    .profile-item span{display:block;color:#666;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+    .profile-item strong{color:#333;font-size:16px}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+    label{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:block}
+    .field{width:100%;border:2px solid #ffe8f3;border-radius:12px;padding:10px 12px;font-size:14px;background:#fff}
+    .btn-primary{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;border:none;padding:12px 22px;border-radius:25px;cursor:pointer;font-weight:600;font-size:14px;box-shadow:0 5px 15px rgba(255,105,180,.3);transition:.3s;margin-top:10px}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(255,105,180,.4)}
+    .flash{background:#ffe1ec;border:1px solid #ffb0ce;color:#b13063;padding:10px 12px;border-radius:12px;margin-bottom:16px;font-size:13px}
+    .errorlist{list-style:none;color:#c0392b;font-size:12px;margin-top:-4px;margin-bottom:8px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><h1>Remittence</h1><p>Empowering Women Globally</p></div>
+      <nav>
+        <div class="nav-item" onclick="go('dashboard.html')"><span></span><span>Dashboard</span></div>
+        <div class="nav-item active" onclick="go('profile.html')"><span></span><span>Profile</span></div>
+        <div class="nav-item" onclick="go('education.html')"><span></span><span>Financial Education</span></div>
+        <div class="nav-item" onclick="go('promotions.html')"><span></span><span>Promotions</span></div>
+        <div class="nav-item" onclick="go('donate.html')"><span></span><span>Donations</span></div>
+        <div class="nav-item" onclick="go('budget.html')"><span></span><span>Budget</span></div>
+        <div class="nav-item" onclick="go('logout.html')"><span></span><span>Logout</span></div>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      {% if messages %}
+        {% for message in messages %}<div class="flash">{{ message }}</div>{% endfor %}
+      {% endif %}
+      <section class="header">
+        <div>
+          <h2>Profile &amp; Settings</h2>
+          <p style="color:#666;font-size:14px;margin-top:6px;">Update your personal information and tailor the experience to your goals.</p>
+        </div>
+        <span class="badge">{{ profile.membership_level }}</span>
+      </section>
+
+      <section class="content-grid">
+        <div>
+          <div class="card">
+            <h3>Your Details</h3>
+            <div class="profile-list">
+              <div class="profile-item"><span>Display Name</span><strong>{{ profile.display_name }}</strong></div>
+              <div class="profile-item"><span>Preferred Currency</span><strong>{{ profile.preferred_currency }}</strong></div>
+              <div class="profile-item"><span>Country</span><strong>{{ profile.country|default:'' }}</strong></div>
+              <div class="profile-item"><span>City</span><strong>{{ profile.city|default:'' }}</strong></div>
+              <div class="profile-item"><span>Address</span><strong>{{ profile.address|default:'' }}</strong></div>
+              <div class="profile-item"><span>Postal Code</span><strong>{{ profile.postal_code|default:'' }}</strong></div>
+              <div class="profile-item"><span>Phone</span><strong>{{ profile.phone_number|default:'' }}</strong></div>
+              <div class="profile-item"><span>Language</span><strong>{{ profile.language|default:'' }}</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <h3>Update Profile</h3>
+            <form method="post" novalidate>
+              {% csrf_token %}
+              <div class="form-grid">
+                {% for field in form %}
+                  <div>
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<ul class="errorlist">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+              <button class="btn-primary" type="submit">Save Changes</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const routes = {
+      'dashboard.html': "{% url 'dashboard' %}",
+      'profile.html': "{% url 'profile' %}",
+      'promotions.html': "{% url 'promotions' %}",
+      'donate.html': "{% url 'donate' %}",
+      'budget.html': "{% url 'budget' %}",
+      'login.html': "{% url 'login' %}",
+      'logout.html': "{% url 'logout' %}",
+      'ForLearning.html': "{% url 'learning' %}",
+      'education.html': "{% url 'learning' %}",
+      'users.html': "{% url 'users' %}",
+    };
+    const go = (href) => {
+      const target = routes[href] || href;
+      window.location.href = target;
+    };
+  </script>
+   {% include 'partials/chatbot.html' %}
+</body>
+</html>

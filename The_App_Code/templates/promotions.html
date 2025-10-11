@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Remittence  Promotions</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#ffeef8 0%,#fff5f9 50%,#ffe8f3 100%);min-height:100vh}
+    .container{display:flex;min-height:100vh}
+    .sidebar{width:280px;background:linear-gradient(180deg,#ffffff 0%,#fff0f6 100%);box-shadow:4px 0 20px rgba(255,105,180,.1);padding:30px 20px;position:fixed;height:100vh;overflow-y:auto}
+    .logo{text-align:center;margin-bottom:40px}
+    .logo h1{color:#ff69b4;font-size:28px;font-weight:700}
+    .logo p{color:#333;font-size:12px;margin-top:5px}
+    .nav-item{padding:15px 20px;margin:10px 0;border-radius:15px;cursor:pointer;transition:.3s;color:#333;font-weight:500;display:flex;align-items:center;gap:12px}
+    .nav-item:hover{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;transform:translateX(5px);box-shadow:0 5px 15px rgba(255,105,180,.3)}
+    .nav-item.active{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;box-shadow:0 5px 15px rgba(255,105,180,.3)}
+    .main-content{margin-left:280px;flex:1;padding:40px}
+    .header{background:#fff;padding:25px 35px;border-radius:20px;box-shadow:0 5px 25px rgba(255,105,180,.1);margin-bottom:30px;display:flex;justify-content:space-between;align-items:center}
+    .header h2{color:#333;font-size:28px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+    .card{background:#fff;padding:24px;border-radius:20px;box-shadow:0 5px 25px rgba(255,105,180,.1);display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;min-height:200px}
+    .tag{position:absolute;top:14px;right:-30px;background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;padding:8px 40px;transform:rotate(25deg);font-size:12px}
+    .card h3{color:#ff69b4}
+    .card p{color:#444;font-size:14px}
+    .btn-primary{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;border:none;padding:10px 16px;border-radius:999px;cursor:pointer;font-weight:600;font-size:13px;box-shadow:0 5px 15px rgba(255,105,180,.3);align-self:flex-start}
+    .stack{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{border:2px solid #ffe8f3;border-radius:999px;padding:8px 12px;font-size:12px;background:#fff}
+    .empty{background:#fff;padding:32px;border-radius:20px;box-shadow:0 5px 25px rgba(255,105,180,.1);color:#555;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><h1>Remittence</h1><p>Empowering Women Globally</p></div>
+      <nav>
+        <div class="nav-item" onclick="go('dashboard.html')"><span></span><span>Dashboard</span></div>
+        <div class="nav-item" onclick="go('profile.html')"><span></span><span>Profile</span></div>
+        <div class="nav-item" onclick="go('education.html')"><span></span><span>Financial Education</span></div>
+        <div class="nav-item active"><span></span><span>Promotions</span></div>
+        <div class="nav-item" onclick="go('donate.html')"><span></span><span>Donations</span></div>
+        <div class="nav-item" onclick="go('logout.html')"><span></span><span>Logout</span></div>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <h2>Promotions & Rewards </h2>
+        <div class="stack">
+          <div class="pill">Referral Bonus</div>
+          <div class="pill">Fee Discounts</div>
+          <div class="pill">Loyalty Points</div>
+        </div>
+      </header>
+
+      {% if promotions %}
+        <section class="grid">
+          {% for promo in promotions %}
+            <article class="card">
+              {% if promo.badge_text %}<div class="tag">{{ promo.badge_text }}</div>{% endif %}
+              <h3>{{ promo.title }}</h3>
+              <p>{{ promo.description }}</p>
+              {% if promo.reward %}<p style="font-weight:600;color:#333;">{{ promo.reward }}</p>{% endif %}
+              {% if promo.cta_link %}
+                <a class="btn-primary" href="{{ promo.cta_link }}" target="_blank">{{ promo.cta_label }}</a>
+              {% else %}
+                <button class="btn-primary" type="button">{{ promo.cta_label }}</button>
+              {% endif %}
+              {% if promo.valid_until %}
+                <small style="color:#777;">Valid until {{ promo.valid_until|date:"M d, Y" }}</small>
+              {% endif %}
+            </article>
+          {% endfor %}
+        </section>
+      {% else %}
+        <div class="empty">No active promotions right now. Check back soon for new rewards!</div>
+      {% endif %}
+    </main>
+  </div>
+
+  <script>
+    const routes = {
+      'dashboard.html': "{% url 'dashboard' %}",
+      'profile.html': "{% url 'profile' %}",
+      'promotions.html': "{% url 'promotions' %}",
+      'donate.html': "{% url 'donate' %}",
+      'budget.html': "{% url 'budget' %}",
+      'login.html': "{% url 'login' %}",
+      'logout.html': "{% url 'logout' %}",
+      'ForLearning.html': "{% url 'learning' %}",
+      'education.html': "{% url 'learning' %}",
+      'users.html': "{% url 'users' %}",
+    };
+    const go = (href) => {
+      const target = routes[href] || href;
+      window.location.href = target;
+    };
+  </script>
+   {% include 'partials/chatbot.html' %}
+</body>
+</html>

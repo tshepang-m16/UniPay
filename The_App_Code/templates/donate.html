@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Remittence - Donations</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#ffeef8 0%,#fff5f9 50%,#ffe8f3 100%);min-height:100vh}
+    .container{display:flex;min-height:100vh}
+    .sidebar{width:280px;background:linear-gradient(180deg,#ffffff 0%,#fff0f6 100%);box-shadow:4px 0 20px rgba(255,105,180,.1);padding:30px 20px;position:fixed;height:100vh;overflow-y:auto}
+    .logo{text-align:center;margin-bottom:40px}
+    .logo h1{color:#ff69b4;font-size:28px;font-weight:700}
+    .logo p{color:#333;font-size:12px;margin-top:5px}
+    .nav-item{padding:15px 20px;margin:10px 0;border-radius:15px;cursor:pointer;transition:.3s;color:#333;font-weight:500;display:flex;align-items:center;gap:12px}
+    .nav-item:hover{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;transform:translateX(5px);box-shadow:0 5px 15px rgba(255,105,180,.3)}
+    .nav-item.active{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;box-shadow:0 5px 15px rgba(255,105,180,.3)}
+    .main-content{margin-left:280px;flex:1;padding:40px}
+    .header{background:#fff;padding:25px 35px;border-radius:20px;box-shadow:0 5px 25px rgba(255,105,180,.1);margin-bottom:30px;display:flex;justify-content:space-between;align-items:center}
+    .header h2{color:#333;font-size:28px}
+    .card{background:#fff;padding:24px;border-radius:20px;box-shadow:0 5px 25px rgba(255,105,180,.1)}
+    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:24px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+    label{font-size:13px;color:#666;margin-bottom:6px;display:block}
+    .field{width:100%;border:2px solid #ffe8f3;border-radius:12px;padding:12px 14px;outline:none;font-size:14px;background:#fff}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:14px}
+    .btn-primary{background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);color:#fff;border:none;padding:14px 24px;border-radius:25px;cursor:pointer;font-weight:600;font-size:15px;box-shadow:0 5px 15px rgba(255,105,180,.3);transition:.3s}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(255,105,180,.4)}
+    .stat{display:flex;align-items:center;gap:14px;margin:10px 0}
+    .bubble{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold}
+    .meta{font-size:12px;color:#666}
+    .progress{height:12px;background:#ffe8f3;border-radius:999px;overflow:hidden}
+    .bar{height:100%;background:linear-gradient(135deg,#ff69b4 0%,#ff1493 100%)}
+    .errorlist{list-style:none;color:#c0392b;font-size:12px;margin-bottom:12px}
+    .donation-list{margin-top:16px;border-top:1px solid #ffe1ec;padding-top:12px}
+    .flash{background:#ffe1ec;border:1px solid #ffb0ce;color:#b13063;padding:10px 12px;border-radius:12px;margin-bottom:16px;font-size:13px}
+    .donation-item{display:flex;justify-content:space-between;margin-bottom:8px;color:#555;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo"><h1>Remittence</h1><p>Empowering Women Globally</p></div>
+      <nav>
+        <div class="nav-item" onclick="go('dashboard.html')"><span></span><span>Dashboard</span></div>
+        <div class="nav-item" onclick="go('profile.html')"><span></span><span>Profile</span></div>
+        <div class="nav-item" onclick="go('education.html')"><span></span><span>Financial Education</span></div>
+        <div class="nav-item" onclick="go('promotions.html')"><span></span><span>Promotions</span></div>
+        <div class="nav-item active"><span></span><span>Donations</span></div>
+        <div class="nav-item" onclick="go('logout.html')"><span></span><span>Logout</span></div>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      {% if messages %}
+        {% for message in messages %}<div class="flash">{{ message }}</div>{% endfor %}
+      {% endif %}
+      <header class="header">
+        <h2>Donations </h2>
+        <div class="meta">Your generosity keeps girls in school and women at work.</div>
+      </header>
+
+      <section class="grid">
+        <div class="card">
+          <h3 style="color:#ff69b4;margin-bottom:12px;">Donation Details</h3>
+          <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+              <ul class="errorlist">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+            <div class="form-row">
+              <div>
+                <label for="{{ form.country.id_for_label }}">Country</label>
+                {{ form.country }}
+                {% if form.country.errors %}<ul class="errorlist">{% for error in form.country.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+              </div>
+              <div>
+                <label for="{{ form.quantity.id_for_label }}">Quantity (packs)</label>
+                {{ form.quantity }}
+                {% if form.quantity.errors %}<ul class="errorlist">{% for error in form.quantity.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label for="{{ form.frequency.id_for_label }}">Frequency</label>
+                {{ form.frequency }}
+                {% if form.frequency.errors %}<ul class="errorlist">{% for error in form.frequency.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+              </div>
+              <div>
+                <label for="{{ form.message.id_for_label }}">Gift Message (optional)</label>
+                {{ form.message }}
+                {% if form.message.errors %}<ul class="errorlist">{% for error in form.message.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+              </div>
+            </div>
+            <div class="form-row">
+              <div>
+                <label for="{{ form.name.id_for_label }}">Your Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}<ul class="errorlist">{% for error in form.name.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+              </div>
+              <div>
+                <label for="{{ form.email.id_for_label }}">Email for Receipt</label>
+                {{ form.email }}
+                {% if form.email.errors %}<ul class="errorlist">{% for error in form.email.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+              </div>
+            </div>
+            <div style="margin-top:8px"><button class="btn-primary" type="submit">Donate Now</button></div>
+          </form>
+        </div>
+        <div class="card">
+          <h3 style="color:#333;margin-bottom:8px;">Impact Overview</h3>
+          <div class="stat"><div class="bubble">{{ donation_total_packs }}</div><div><div style="font-weight:600;color:#333;">Pads Donated</div><div class="meta">Across the community</div></div></div>
+          <div class="stat"><div class="bubble">{{ donor_count }}</div><div><div style="font-weight:600;color:#333;">Active Donors</div><div class="meta">Supporting monthly</div></div></div>
+          <div class="progress" style="margin:8px 0 16px;"><div class="bar" style="width: {{ donation_goal_percent }}%;margin-bottom: 4px;"></div></div>
+          <div class="meta">Goal: {{ donation_goal_target }} packs ? Progress {{ donation_goal_percent }}%</div>
+          <div class="meta" style="margin-top:6px;">Every pack reaches a vetted local partner. We publish transparent delivery reports monthly.</div>
+          {% if recent_donations %}
+            <div class="donation-list">
+              {% for donation in recent_donations %}
+                <div class="donation-item"><span>{{ donation.name }}  {{ donation.country }}</span><span>{{ donation.quantity }} packs</span></div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const routes = {
+      'dashboard.html': "{% url 'dashboard' %}",
+      'profile.html': "{% url 'profile' %}",
+      'promotions.html': "{% url 'promotions' %}",
+      'donate.html': "{% url 'donate' %}",
+      'budget.html': "{% url 'budget' %}",
+      'login.html': "{% url 'login' %}",
+      'logout.html': "{% url 'logout' %}",
+      'ForLearning.html': "{% url 'learning' %}",
+      'education.html': "{% url 'learning' %}",
+      'users.html': "{% url 'users' %}",
+    };
+    const go = (href) => {
+      const target = routes[href] || href;
+      window.location.href = target;
+    };
+  </script>
+   {% include 'partials/chatbot.html' %}
+</body>
+</html>
